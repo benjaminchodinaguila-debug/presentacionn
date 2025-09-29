@@ -1,0 +1,138 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rally en Chile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 2em;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        nav {
+            background-color: #34495e;
+            padding: 1em;
+            text-align: center;
+        }
+        nav a {
+            color: white;
+            margin: 0 1em;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        section {
+            padding: 2em;
+            margin: 1em auto;
+            max-width: 800px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        section h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5em;
+        }
+        section img {
+            max-width: 100%;
+            height: auto;
+            margin: 1em 0;
+            border-radius: 8px;
+        }
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1em;
+            position: relative;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Rally en Chile</h1>
+    </header>
+    <nav>
+        <a href="#historia">Historia</a>
+        <a href="#eventos">Eventos Principales</a>
+        <a href="#impacto">Impacto</a>
+    </nav>
+    <section id="historia">
+        <h2>Historia del Rally en Chile</h2>
+        <p>El rally en Chile tiene una rica historia que se remonta a las décadas de 1970 y 1980, cuando comenzaron a organizarse competencias locales en caminos rurales. Con el tiempo, el país se convirtió en un destino destacado para el automovilismo, especialmente con la llegada del Rally Dakar y el WRC.</p>
+        <img src="images/historia1.jpg" alt="Rally en Chile - Historia 1">
+        <img src="images/historia2.jpg" alt="Rally en Chile - Historia 2">
+    </section>
+    <section id="eventos">
+        <h2>Eventos Principales</h2>
+        <p>Chile ha sido sede de eventos internacionales como el RallyMobil y el World Rally Championship (WRC). Estos eventos atraen a pilotos de todo el mundo y se desarrollan en terrenos desafiantes como los bosques de la Región de Biobío y los caminos del sur.</p>
+        <img src="images/eventos1.jpg" alt="Rally en Chile - Eventos 1">
+        <img src="images/eventos2.jpg" alt="Rally en Chile - Eventos 2">
+    </section>
+    <section id="impacto">
+        <h2>Impacto Cultural y Económico</h2>
+        <p>El rally no solo es un deporte emocionante, sino que también impulsa el turismo y la economía local. Las competencias generan empleo y promueven la cultura automovilística en el país, inspirando a nuevas generaciones de pilotos.</p>
+        <img src="images/impacto1.jpg" alt="Rally en Chile - Impacto 1">
+        <img src="images/impacto2.jpg" alt="Rally en Chile - Impacto 2">
+    </section>
+    <footer>
+        <p>&copy; 2025 Rally en Chile. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
